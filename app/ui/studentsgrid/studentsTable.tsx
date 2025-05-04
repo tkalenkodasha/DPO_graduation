@@ -15,6 +15,7 @@ import {AgGridReact} from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import {DeleteStudent, UpdateStudent} from './buttons';
 import {StudentsTableType} from '@/app/lib/definitions';
+import * as XLSX from 'xlsx';
 
 ModuleRegistry.registerModules([
     ClientSideRowModelModule,
@@ -92,19 +93,42 @@ export default function StudentsTable({
     );
 
     const onBtnExport = useCallback(() => {
-        if (gridRef.current) {
-            gridRef.current.api.exportDataAsExcel({
-                fileName: `Студенты_${new Date().toISOString().split('T')[0]}`,
-                sheetName: 'Студенты',
-                columnKeys: columnDefs
-                    .filter(col => col.field && col.field !== 'photo_url')
-                    .map(col => col.field!),
-                processCellCallback: (params) => {
-                    return params.value ? params.value.toString() : '';
-                },
-            });
-        }
-    }, []);
+        // Преобразуем данные в массив объектов для Excel
+        const exportData = students.map((student, index) => ({
+            '№': index + 1,
+            'Фамилия': student.last_name,
+            'Имя': student.first_name,
+            'Отчество': student.middle_name || '',
+            'Email': student.email || '',
+            'Телефон': student.phone || '',
+            'Дата рождения': student.date_of_birth,
+            'Пол': student.gender_name,
+            'Образование': student.education_name,
+            'Категория': student.category_name || '',
+            'Подкатегория': student.subcategory_name || '',
+            'Серия паспорта': student.passport_series || '',
+            'Номер паспорта': student.passport_number || '',
+            'Кем выдан': student.issued_by || '',
+            'Дата выдачи': student.issue_date || '',
+            'ИНН': student.inn || '',
+            'СНИЛС': student.snils || '',
+            'Адрес': student.address || '',
+            'Почтовый индекс': student.postal_code || '',
+            'Место работы': student.workplace || '',
+            'Университет': student.university || '',
+            'Должность': student.position || '',
+            'URL фото': student.photo_url || '',
+        }));
+
+        // Создаем рабочий лист
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        // Создаем рабочую книгу
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Студенты');
+
+        // Экспортируем файл
+        XLSX.writeFile(workbook, `Студенты_${new Date().toISOString().split('T')[0]}.xlsx`);
+    }, [students]);
 
     return (
         <div className="mt-6">
