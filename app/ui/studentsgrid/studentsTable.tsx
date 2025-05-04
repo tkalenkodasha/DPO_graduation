@@ -10,7 +10,6 @@ import {
     RowSelectionModule,
     TextFilterModule,
 } from 'ag-grid-community';
-import {ExcelExportModule} from 'ag-grid-enterprise'; // Добавляем импорт
 import {useCallback, useMemo, useRef} from 'react';
 import {AgGridReact} from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
@@ -24,7 +23,6 @@ ModuleRegistry.registerModules([
     TextFilterModule,
     NumberFilterModule,
     DateFilterModule,
-    ExcelExportModule,
 ]);
 
 export default function StudentsTable({
