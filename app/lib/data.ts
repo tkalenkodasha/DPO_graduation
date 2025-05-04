@@ -2,22 +2,23 @@ import postgres from 'postgres';
 import {
     ContractForm,
     ContractsTable,
-    StudentField,
     LatestContractRaw,
+    StudentField,
     StudentForm,
     StudentsTableType
 } from './definitions';
 
 const sql = postgres(process.env.POSTGRES_URL!, {ssl: 'require'});
+
 export async function fetchLatestContracts() {
     try {
         const data = await sql<LatestContractRaw[]>`
-            SELECT contracts.number, 
+            SELECT contracts.number,
                    students.last_name,
                    students.first_name,
                    students.middle_name,
-                   students.photo_url, 
-                   students.email, 
+                   students.photo_url,
+                   students.email,
                    contracts.id
             FROM contracts
                      JOIN students ON contracts.student_id = students.id
@@ -32,6 +33,7 @@ export async function fetchLatestContracts() {
         throw new Error('Failed to fetch the latest invoices.');
     }
 }
+
 export async function fetchCardData() {
     try {
 
@@ -40,7 +42,7 @@ export async function fetchCardData() {
         const contractsCountPromise = sql`SELECT COUNT(*)
                                           FROM contracts;`;
         const coursesCountPromise = sql`SELECT COUNT(*)
-                                         FROM courses`;
+                                        FROM courses`;
 
 
         const data = await Promise.all([
@@ -63,8 +65,10 @@ export async function fetchCardData() {
         throw new Error('Failed to fetch card data.');
     }
 }
+
 const ITEMS_PER_PAGE = 15;
-export async function  fetchFilteredContracts(
+
+export async function fetchFilteredContracts(
     query: string,
     currentPage: number,
 ) {
@@ -79,7 +83,7 @@ export async function  fetchFilteredContracts(
                    contracts.completion_date,
                    contracts.status,
                    contracts.funding_source_id,
-                  
+
                    students.email,
                    students.photo_url,
                    students.last_name,
@@ -113,6 +117,7 @@ export async function  fetchFilteredContracts(
         throw new Error('Failed to fetch invoices.');
     }
 }
+
 export async function fetchContractsPages(query: string) {
     try {
         const data = await sql`SELECT COUNT(*)
@@ -140,6 +145,7 @@ export async function fetchContractsPages(query: string) {
         throw new Error('Failed to fetch total number of contracts.');
     }
 }
+
 export async function fetchContractById(id: string) {
     try {
         const data = await sql<ContractForm[]>`
@@ -150,7 +156,7 @@ export async function fetchContractById(id: string) {
                    contracts.contract_type_id,
                    TO_CHAR(contracts.enrollment_date, 'YYYY-MM-DD') AS enrollment_date,
                    TO_CHAR(contracts.completion_date, 'YYYY-MM-DD') AS completion_date,
-                   TO_CHAR(contracts.contract_date, 'YYYY-MM-DD') AS contract_date,
+                   TO_CHAR(contracts.contract_date, 'YYYY-MM-DD')   AS contract_date,
                    contracts.status
 
             FROM contracts
@@ -161,13 +167,14 @@ export async function fetchContractById(id: string) {
             ...contract,
 
         }));
-        console.log(contract); // Invoice is an empty array []
+        console.log(contract);
         return contract[0];
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('Failed to fetch invoice.');
     }
 }
+
 export async function fetchStudents() {
     try {
         const students = await sql<StudentField[]>`
@@ -185,6 +192,7 @@ export async function fetchStudents() {
         throw new Error('Failed to fetch all students.');
     }
 }
+
 export async function fetchStudentsPages(query: string) {
     try {
         const data = await sql`
@@ -206,45 +214,49 @@ export async function fetchStudentsPages(query: string) {
         throw new Error('Не удалось загрузить общее количество студентов.');
     }
 }
+
 export async function fetchFundingSources() {
     try {
         const fundingSources = await sql<{ id: string; name: string }[]>`
-      SELECT id, name
-      FROM funding_sources
-      ORDER BY name ASC
-    `;
+            SELECT id, name
+            FROM funding_sources
+            ORDER BY name ASC
+        `;
         return fundingSources;
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('Failed to fetch funding sources.');
     }
 }
+
 export async function fetchContractTypes() {
     try {
         const contractTypes = await sql<{ id: string; name: string }[]>`
-      SELECT id, name
-      FROM contract_types
-      ORDER BY name ASC
-    `;
+            SELECT id, name
+            FROM contract_types
+            ORDER BY name ASC
+        `;
         return contractTypes;
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('Failed to fetch contract types.');
     }
 }
+
 export async function fetchCourses() {
     try {
         const courses = await sql<{ id: string; name: string }[]>`
-      SELECT id, name
-      FROM courses
-      ORDER BY name ASC
-    `;
+            SELECT id, name
+            FROM courses
+            ORDER BY name ASC
+        `;
         return courses;
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('Failed to fetch courses.');
     }
 }
+
 export async function fetchGenders() {
     try {
         const genders = await sql<{ id: string; name: string }[]>`
@@ -258,6 +270,7 @@ export async function fetchGenders() {
         throw new Error('Failed to fetch genders.');
     }
 }
+
 export async function fetchEducations() {
     try {
         const educations = await sql<{ id: string; name: string }[]>`
@@ -271,6 +284,7 @@ export async function fetchEducations() {
         throw new Error('Failed to fetch educations.');
     }
 }
+
 export async function fetchCategories() {
     try {
         const categories = await sql<{ id: string; name: string }[]>`
@@ -284,6 +298,7 @@ export async function fetchCategories() {
         throw new Error('Failed to fetch categories.');
     }
 }
+
 export async function fetchSubcategories(categoryId?: string) {
     try {
         const subcategories = await sql<{ id: string; name: string }[]>`
@@ -298,6 +313,7 @@ export async function fetchSubcategories(categoryId?: string) {
         throw new Error('Failed to fetch subcategories.');
     }
 }
+
 export async function fetchFilteredStudents(query: string, currentPage: number): Promise<StudentsTableType[]> {
     const ITEMS_PER_PAGE = 50;
     const offset = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -341,6 +357,18 @@ export async function fetchFilteredStudents(query: string, currentPage: number):
                 s.email ILIKE ${`%${query}%`}
                OR
                 s.phone ILIKE ${`%${query}%`}
+               OR
+                s.date_of_birth::text ILIKE ${`%${query}%`}
+               OR
+                g.name ILIKE ${`%${query}%`}
+               OR
+                e.name ILIKE ${`%${query}%`}
+               OR
+                c.name ILIKE ${`%${query}%`}
+               OR
+                sc.name ILIKE ${`%${query}%`}
+               OR
+                s.position ILIKE ${`%${query}%`}
             GROUP BY
                 s.id, s.last_name, s.first_name, s.middle_name, s.email, s.phone, s.date_of_birth,
                 g.name, e.name, c.name, sc.name, s.passport_series, s.passport_number, s.issued_by,
@@ -351,12 +379,13 @@ export async function fetchFilteredStudents(query: string, currentPage: number):
             OFFSET ${offset}
         `;
 
-        return students; // Возвращаем массив напрямую
+        return students;
     } catch (error) {
         console.error('Ошибка базы данных:', error);
         throw new Error('Не удалось загрузить студентов.');
     }
 }
+
 export async function fetchStudentById(id: string): Promise<StudentForm | null> {
     try {
         const result = await sql<StudentForm[]>`
@@ -370,7 +399,7 @@ export async function fetchStudentById(id: string): Promise<StudentForm | null> 
                    passport_series,
                    passport_number,
                    issued_by,
-                   TO_CHAR(issue_date, 'YYYY-MM-DD') AS issue_date,
+                   TO_CHAR(issue_date, 'YYYY-MM-DD')    AS issue_date,
                    inn,
                    snils,
                    address,

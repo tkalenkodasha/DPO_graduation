@@ -8,15 +8,15 @@ import {
     NumberFilterModule,
     PaginationModule,
     RowSelectionModule,
-    TextFilterModule
+    TextFilterModule,
 } from 'ag-grid-community';
+import {ExcelExportModule} from 'ag-grid-enterprise'; // Добавляем импорт
 import {useCallback, useMemo, useRef} from 'react';
 import {AgGridReact} from 'ag-grid-react';
-import 'ag-grid-community/styles/ag-theme-alpine.css'; // Используем только одну тему
+import 'ag-grid-community/styles/ag-theme-alpine.css';
 import {DeleteStudent, UpdateStudent} from './buttons';
 import {StudentsTableType} from '@/app/lib/definitions';
 
-// Регистрация модулей
 ModuleRegistry.registerModules([
     ClientSideRowModelModule,
     RowSelectionModule,
@@ -24,6 +24,7 @@ ModuleRegistry.registerModules([
     TextFilterModule,
     NumberFilterModule,
     DateFilterModule,
+    ExcelExportModule,
 ]);
 
 export default function StudentsTable({
@@ -37,6 +38,15 @@ export default function StudentsTable({
 
     const columnDefs: ColDef<StudentsTableType>[] = useMemo(
         () => [
+            {
+                headerName: '№',
+                width: 50,
+                pinned: 'left',
+                sortable: false,
+                filter: false,
+                resizable: true,
+                valueGetter: 'node.rowIndex + 1',
+            },
             {
                 field: 'last_name',
                 headerName: 'Фамилия',
@@ -84,25 +94,36 @@ export default function StudentsTable({
     );
 
     const onBtnExport = useCallback(() => {
-        gridRef.current?.api.exportDataAsExcel({
-            fileName: `Студенты_${new Date().toISOString().split('T')[0]}`,
-        });
+        if (gridRef.current) {
+            gridRef.current.api.exportDataAsExcel({
+                fileName: `Студенты_${new Date().toISOString().split('T')[0]}`,
+                sheetName: 'Студенты',
+                columnKeys: columnDefs
+                    .filter(col => col.field && col.field !== 'photo_url')
+                    .map(col => col.field!),
+                processCellCallback: (params) => {
+                    return params.value ? params.value.toString() : '';
+                },
+            });
+        }
     }, []);
 
     return (
         <div className="mt-6">
-            {/*<button
+            <button
                 onClick={onBtnExport}
                 className="mb-4 flex h-10 items-center rounded-lg bg-green-600 px-4 text-sm font-medium text-white transition-colors hover:bg-green-500"
             >
                 Экспорт в Excel
-            </button>*/}
-            <div className="ag-theme-alpine"
-                 style={{
-                     height: 'calc(100vh - 200px)',
-                     width: '100%',
-                     overflow: 'auto',
-                 }}>
+            </button>
+            <div
+                className="ag-theme-alpine"
+                style={{
+                    height: 'calc(100vh - 200px)',
+                    width: '100%',
+                    overflow: 'auto',
+                }}
+            >
                 <AgGridReact
                     ref={gridRef}
                     columnDefs={columnDefs}
@@ -121,7 +142,6 @@ export default function StudentsTable({
                     paginationPageSize={50}
                     headerHeight={40}
                     rowHeight={50}
-
                     overlayLoadingTemplate={'<span class="ag-overlay-loading-center">Загрузка данных...</span>'}
                     overlayNoRowsTemplate={'<span class="ag-overlay-loading-center">Нет данных для отображения</span>'}
                 />
