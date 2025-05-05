@@ -93,7 +93,7 @@ export default function EditStudentForm({
                 {/* Email */}
                 <div className="mb-4">
                     <label htmlFor="email" className="mb-2 block text-sm font-medium">
-                        Email (необязательно)
+                        Email *
                     </label>
                     <div className="relative">
                         <input

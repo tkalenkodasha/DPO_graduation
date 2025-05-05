@@ -86,7 +86,7 @@ export default async function ContractsTable({
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex items-center gap-3">
                       <Image
-                        src={contract.photo_url}
+                        src={'/students/zaglushka.png'}
                         className="rounded-full"
                         width={28}
                         height={28}

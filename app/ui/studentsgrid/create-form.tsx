@@ -87,7 +87,7 @@ export default function Form({
                 {/* Email */}
                 <div className="mb-4">
                     <label htmlFor="email" className="mb-2 block text-sm font-medium">
-                        Email (необязательно)
+                        Email*
                     </label>
                     <div className="relative">
                         <input
@@ -99,9 +99,7 @@ export default function Form({
                         <EnvelopeIcon
                             className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500"/>
                     </div>
-                    {state.errors?.email?.map((error: string) => (
-                        <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
-                    ))}
+
                 </div>
 
                 {/* Phone */}
