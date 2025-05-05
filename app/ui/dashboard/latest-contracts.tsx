@@ -29,7 +29,7 @@ export default async function LatestContracts({
                             >
                                 <div className="flex items-center">
                                     <Image
-                                        src={contract.photo_url}
+                                        src={'/students/zaglushka.png'}
                                         alt={`${contract.last_name}'s profile picture`}
                                         className="mr-4 rounded-full"
                                         width={32}

@@ -193,7 +193,10 @@ const StudentFormSchema = z.object({
     passport_series: z.string().optional(),
     passport_number: z.string().optional(),
     issued_by: z.string().optional(),
-    issue_date: z.string().optional(),
+    issue_date: z.string().refine(
+        (val) => !val || /^\d{4}-\d{2}-\d{2}$/.test(val),
+        { message: 'Дата выдачи должна быть в формате YYYY-MM-DD или пустой' }
+    ).optional(),
     inn: z.string().optional(),
     snils: z.string().optional(),
     address: z.string().optional(),
@@ -274,6 +277,17 @@ export async function createStudent(prevState: StudentState, formData: FormData)
         issued_by, issue_date, inn, snils, address, postal_code, workplace, university,
         position, photo_url,
     } = validatedFields.data;
+    console.log('Validated fields:', {
+        last_name, first_name, middle_name, email, phone, date_of_birth, gender_id,
+        education_id, category_id, subcategory_id, passport_series, passport_number,
+        issued_by, issue_date, inn, snils, address, postal_code, workplace, university,
+        position, photo_url
+    });
+
+
+    const safeIssueDate = issue_date === '' ? null : issue_date;
+    const safeCategoryId = category_id === '' ? null : category_id;
+    const safeSubcategoryId = subcategory_id === '' ? null : subcategory_id;
 
     try {
         await sql`
@@ -282,8 +296,8 @@ export async function createStudent(prevState: StudentState, formData: FormData)
                                   issued_by, issue_date, inn, snils, address, postal_code, workplace, university,
                                   position, photo_url)
             VALUES (${last_name}, ${first_name}, ${middle_name ?? null}, ${email ?? null}, ${phone ?? null},
-                    ${date_of_birth}, ${gender_id}, ${education_id}, ${category_id ?? null}, ${subcategory_id ?? null},
-                    ${passport_series ?? null}, ${passport_number ?? null}, ${issued_by ?? null}, ${issue_date ?? null},
+                    ${date_of_birth}, ${gender_id}, ${education_id}, ${safeCategoryId?? null}, ${safeSubcategoryId?? null},
+                    ${passport_series ?? null}, ${passport_number ?? null}, ${issued_by ?? null}, ${safeIssueDate ?? null},
                     ${inn ?? null}, ${snils ?? null}, ${address ?? null}, ${postal_code ?? null}, ${workplace ?? null},
                     ${university ?? null}, ${position ?? null}, ${photo_url ?? null})
         `;
@@ -340,6 +354,9 @@ export async function updateStudent(id: string, prevState: StudentState, formDat
         position, photo_url,
     } = validatedFields.data;
 
+    const safeIssueDate = issue_date === '' ? null : issue_date;
+    const safeCategoryId = category_id === '' ? null : category_id;
+    const safeSubcategoryId = subcategory_id === '' ? null : subcategory_id;
     try {
         await sql`
             UPDATE students
@@ -351,12 +368,12 @@ export async function updateStudent(id: string, prevState: StudentState, formDat
                 date_of_birth   = ${date_of_birth},
                 gender_id       = ${gender_id},
                 education_id    = ${education_id},
-                category_id     = ${category_id ?? null},
-                subcategory_id  = ${subcategory_id ?? null},
+                category_id     = ${safeCategoryId ?? null},
+                subcategory_id  = ${safeSubcategoryId ?? null},
                 passport_series = ${passport_series ?? null},
                 passport_number = ${passport_number ?? null},
                 issued_by       = ${issued_by ?? null},
-                issue_date      = ${issue_date ?? null},
+                issue_date      = ${safeIssueDate ?? null},
                 inn             = ${inn ?? null},
                 snils           = ${snils ?? null},
                 address         = ${address ?? null},
