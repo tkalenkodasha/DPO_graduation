@@ -75,7 +75,6 @@ export default function StudentsTable({
             {field: 'workplace', headerName: 'Место работы', sortable: true, filter: true, resizable: true},
             {field: 'university', headerName: 'Университет', sortable: true, filter: true, resizable: true},
             {field: 'position', headerName: 'Должность', sortable: true, filter: true, resizable: true},
-            {field: 'photo_url', headerName: 'URL фото', sortable: true, filter: true, resizable: true},
             {
                 headerName: 'Действия',
                 cellRenderer: (params: ICellRendererParams<StudentsTableType>) => (

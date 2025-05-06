@@ -334,7 +334,7 @@ export async function fetchFilteredStudents(query: string, currentPage: number):
                    s.passport_series,
                    s.passport_number,
                    s.issued_by,
-                   s.issue_date,
+                   TO_CHAR(s.issue_date, 'YYYY-MM-DD') AS issue_date,
                    s.inn,
                    s.snils,
                    s.address,
@@ -422,3 +422,5 @@ export async function fetchStudentById(id: string): Promise<StudentForm | null> 
         throw new Error('Не удалось загрузить студента.');
     }
 }
+
+{/*-------------------------------------------------------------------------------------------*/}
