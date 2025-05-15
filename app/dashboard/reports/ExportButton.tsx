@@ -2,10 +2,8 @@
 import * as XLSX from 'xlsx';
 import { lusitana } from '@/app/ui/fonts';
 
-// Тип для возрастных групп
 type AgeGroup = 'under_25' | '25_29' | '30_34' | '35_39' | '40_44' | '45_49' | '50_54' | '55_59' | '60_and_above';
 
-// Тип для данных отчета
 interface ReportData {
     gender: string;
     program_type: string;
@@ -13,7 +11,6 @@ interface ReportData {
     age_group: AgeGroup;
 }
 
-// Тип для структуры подсчета
 interface CountData {
     all: number;
     under_25: number;
@@ -34,20 +31,20 @@ interface ExportButtonProps {
 export default function ExportButton({ reportData, reportYear }: ExportButtonProps) {
     const processReportData = () => {
         const result = {
-            total: { all: 0, under_25: 0, '25_29': 0, '30_34': 0, '35_39': 0, '40_44': 0, '45_49': 0, '50_54': 0, '55_59': 0 } as CountData,
-            women: { all: 0, under_25: 0, '25_29': 0, '30_34': 0, '35_39': 0, '40_44': 0, '45_49': 0, '50_54': 0, '55_59': 0 } as CountData,
-            qualification: { all: 0, under_25: 0, '25_29': 0, '30_34': 0, '35_39': 0, '40_44': 0, '45_49': 0, '50_54': 0, '55_59': 0 } as CountData,
-            women_qualification: { all: 0, under_25: 0, '25_29': 0, '30_34': 0, '35_39': 0, '40_44': 0, '45_49': 0, '50_54': 0, '55_59': 0 } as CountData,
-            retraining: { all: 0, under_25: 0, '25_29': 0, '30_34': 0, '35_39': 0, '40_44': 0, '45_49': 0, '50_54': 0, '55_59': 0 } as CountData,
-            women_retraining: { all: 0, under_25: 0, '25_29': 0, '30_34': 0, '35_39': 0, '40_44': 0, '45_49': 0, '50_54': 0, '55_59': 0 } as CountData,
+            total: { all: 0, under_25: 0, '25_29': 0, '30_34': 0, '35_39': 0, '40_44': 0, '45_49': 0, '50_54': 0, '55_59': 0 },
+            women: { all: 0, under_25: 0, '25_29': 0, '30_34': 0, '35_39': 0, '40_44': 0, '45_49': 0, '50_54': 0, '55_59': 0 },
+            qualification: { all: 0, under_25: 0, '25_29': 0, '30_34': 0, '35_39': 0, '40_44': 0, '45_49': 0, '50_54': 0, '55_59': 0 },
+            women_qualification: { all: 0, under_25: 0, '25_29': 0, '30_34': 0, '35_39': 0, '40_44': 0, '45_49': 0, '50_54': 0, '55_59': 0 },
+            retraining: { all: 0, under_25: 0, '25_29': 0, '30_34': 0, '35_39': 0, '40_44': 0, '45_49': 0, '50_54': 0, '55_59': 0 },
+            women_retraining: { all: 0, under_25: 0, '25_29': 0, '30_34': 0, '35_39': 0, '40_44': 0, '45_49': 0, '50_54': 0, '55_59': 0 },
         };
 
         reportData.forEach(row => {
             const count = row.count;
             const ageGroup = row.age_group;
-            const isWomen = row.gender.toLowerCase().includes('Женский');
-            const isQualification = row.program_type.toLowerCase().includes('программа повышения квалификации');
-            const isRetraining = row.program_type.toLowerCase().includes('программа профессиональной переподготовки');
+            const isWomen = row.gender.toLowerCase().includes('жен');
+            const isQualification = row.program_type.toLowerCase().includes('повышение квалификации');
+            const isRetraining = row.program_type.toLowerCase().includes('профессиональная переподготовка');
 
             // Общее количество
             result.total.all += count;

@@ -447,57 +447,35 @@ interface ReportRow {
 
 
 export async function fetchReportSection24(reportYear: number): Promise<ReportData[]> {
-    const referenceDate = `${reportYear + 1}-01-01`; // Например, для 2022 года -> 2023-01-01
+    const referenceDate = `${reportYear + 1}-01-01`;
 
     try {
         const data = await sql<ReportRow[]>`
-            SELECT g.name AS gender,
-                   p.name AS program_type,
-                   COUNT(*) AS count,
+            SELECT
+                g.name AS gender,
+                p.name AS program_type,
+                COUNT(*) AS count,
                 CASE 
                     WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) < 25 THEN 'under_25'
-                WHEN EXTRACT (YEAR FROM AGE(
-                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 25 AND 29 THEN '25_29'
-                WHEN EXTRACT (YEAR FROM AGE(
-                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 30 AND 34 THEN '30_34'
-                WHEN EXTRACT (YEAR FROM AGE(
-                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 35 AND 39 THEN '35_39'
-                WHEN EXTRACT (YEAR FROM AGE(
-                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 40 AND 44 THEN '40_44'
-                WHEN EXTRACT (YEAR FROM AGE(
-                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 45 AND 49 THEN '45_49'
-                WHEN EXTRACT (YEAR FROM AGE(
-                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 50 AND 54 THEN '50_54'
-                WHEN EXTRACT (YEAR FROM AGE(
-                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 55 AND 59 THEN '55_59'
+                WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 25 AND 29 THEN '25_29'
+                WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 30 AND 34 THEN '30_34'
+                WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 35 AND 39 THEN '35_39'
+                WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 40 AND 44 THEN '40_44'
+                WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 45 AND 49 THEN '45_49'
+                WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 50 AND 54 THEN '50_54'
+                WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 55 AND 59 THEN '55_59'
                 ELSE '60_and_above'
-            END
-            AS age_group
+            END AS age_group
             FROM contracts c
             JOIN students s ON c.student_id = s.id
             JOIN genders g ON s.gender_id = g.id
             JOIN courses co ON c.course_id = co.id
             JOIN programs p ON co.program_id = p.id
-            WHERE EXTRACT(YEAR FROM c.contract_date) =
-            ${reportYear}
-            GROUP
-            BY
-            g
-            .
-            name,
-            p
-            .
-            name,
-            age_group
+            WHERE EXTRACT(YEAR FROM c.contract_date) = ${reportYear}
+            GROUP BY g.name, p.name, age_group
         `;
 
-        // Логирование для диагностики
-        console.log('SQL Result:', data);
-
-        // Проверяем, является ли data массивом
-        const rows = Array.isArray(data) ? data : [];
-
-        return rows.map((row: ReportRow) => ({
+        return data.map((row) => ({
             gender: row.gender,
             program_type: row.program_type,
             count: Number(row.count),
