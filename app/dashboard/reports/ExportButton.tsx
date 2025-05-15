@@ -1,7 +1,9 @@
 'use client';
 import * as XLSX from 'xlsx';
 import { lusitana } from '@/app/ui/fonts';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+
 type AgeGroup = 'under_25' | '25_29' | '30_34' | '35_39' | '40_44' | '45_49' | '50_54' | '55_59' | '60_and_above';
 
 interface ReportData {
@@ -16,10 +18,26 @@ interface ExportButtonProps {
     reportYear: number;
 }
 
-export default function ExportButton({ reportData }: ExportButtonProps) {
-    // Состояние для хранения значения года
-    const [reportYear, setReportYear] = useState<number>(new Date().getFullYear());
+export default function ExportButton({ reportData, reportYear: initialReportYear }: ExportButtonProps) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [reportYear, setReportYear] = useState<number>(initialReportYear);
 
+    // Синхронизация reportYear с searchParams при загрузке
+    useEffect(() => {
+        const yearFromParams = searchParams.get('reportYear');
+        if (yearFromParams) {
+            setReportYear(parseInt(yearFromParams, 10));
+        }
+    }, [searchParams]);
+
+    // Обработчик изменения года
+    const handleYearChange = (year: number) => {
+        setReportYear(year);
+        const newParams = new URLSearchParams(searchParams.toString());
+        newParams.set('reportYear', year.toString());
+        router.push(`?${newParams.toString()}`);
+    };
 
     const processReportData = () => {
         const result = {
@@ -31,24 +49,21 @@ export default function ExportButton({ reportData }: ExportButtonProps) {
             women_retraining: { all: 0, under_25: 0, '25_29': 0, '30_34': 0, '35_39': 0, '40_44': 0, '45_49': 0, '50_54': 0, '55_59': 0 },
         };
 
-        reportData.forEach(row => {
+        reportData.forEach((row) => {
             const count = row.count;
             const ageGroup = row.age_group;
             const isWomen = row.gender.toLowerCase().includes('жен');
             const isQualification = row.program_type.toLowerCase().includes('повышение квалификации');
             const isRetraining = row.program_type.toLowerCase().includes('профессиональная переподготовка');
 
-            // Общее количество
             result.total.all += count;
             if (ageGroup !== '60_and_above') result.total[ageGroup] += count;
 
-            // Женщины
             if (isWomen) {
                 result.women.all += count;
                 if (ageGroup !== '60_and_above') result.women[ageGroup] += count;
             }
 
-            // Повышение квалификации
             if (isQualification) {
                 result.qualification.all += count;
                 if (ageGroup !== '60_and_above') result.qualification[ageGroup] += count;
@@ -58,7 +73,6 @@ export default function ExportButton({ reportData }: ExportButtonProps) {
                 }
             }
 
-            // Профессиональная переподготовка
             if (isRetraining) {
                 result.retraining.all += count;
                 if (ageGroup !== '60_and_above') result.retraining[ageGroup] += count;
@@ -161,7 +175,6 @@ export default function ExportButton({ reportData }: ExportButtonProps) {
 
     return (
         <div className="flex flex-col items-start space-y-4">
-            {/* Поле ввода для года */}
             <div className="flex items-center space-x-2">
                 <label htmlFor="reportYear" className={`${lusitana.className} text-lg font-medium`}>
                     Год отчета:
@@ -170,12 +183,10 @@ export default function ExportButton({ reportData }: ExportButtonProps) {
                     id="reportYear"
                     type="number"
                     value={reportYear}
-                    onChange={(e) => setReportYear(Number(e.target.value))}
+                    onChange={(e) => handleYearChange(Number(e.target.value))}
                     className="w-24 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:border-green-500"
                 />
             </div>
-
-            {/* Кнопка экспорта */}
             <button
                 onClick={handleExport}
                 className="flex h-10 items-center rounded-lg bg-green-600 px-4 text-sm font-medium text-white transition-colors hover:bg-green-500"

@@ -3,10 +3,12 @@ import { fetchReportSection24 } from '@/app/lib/data';
 import { lusitana } from '@/app/ui/fonts';
 import ExportButton from './ExportButton';
 
+interface PageProps {
+    searchParams?: { reportYear?: string };
+}
 
-
-export default async function Page() {
-    const reportYear = 2023; // Можно сделать параметром через searchParams
+export default async function Page({ searchParams }: PageProps) {
+    const reportYear = parseInt(searchParams?.reportYear || '2023', 10);
     const reportData = await fetchReportSection24(reportYear);
 
     return (
