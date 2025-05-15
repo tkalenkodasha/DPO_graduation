@@ -88,7 +88,7 @@ export async function fetchCardData() {
     }
 }
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 7;
 
 export async function fetchFilteredContracts(
     query: string,
@@ -315,7 +315,7 @@ export async function fetchSubcategories(categoryId?: string) {
 }
 
 export async function fetchFilteredStudents(query: string, currentPage: number): Promise<StudentsTableType[]> {
-    const ITEMS_PER_PAGE = 50;
+    const ITEMS_PER_PAGE = 1000;
     const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
     try {
@@ -454,7 +454,7 @@ export async function fetchReportSection24(reportYear: number): Promise<ReportDa
             SELECT
                 g.name AS gender,
                 p.name AS program_type,
-                COUNT(*) AS count,
+                COUNT(DISTINCT s.id) AS count,
                 CASE 
                     WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) < 25 THEN 'under_25'
                 WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 25 AND 29 THEN '25_29'
@@ -466,18 +466,22 @@ export async function fetchReportSection24(reportYear: number): Promise<ReportDa
                 WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 55 AND 59 THEN '55_59'
                 ELSE '60_and_above'
             END AS age_group
-            FROM contracts c
-            JOIN students s ON c.student_id = s.id
+            FROM students s
+            JOIN (
+                SELECT DISTINCT student_id
+                FROM contracts
+                WHERE EXTRACT(YEAR FROM contract_date) = ${reportYear}
+            ) c ON s.id = c.student_id
             JOIN genders g ON s.gender_id = g.id
-            JOIN courses co ON c.course_id = co.id
-            JOIN programs p ON co.program_id = p.id
-            WHERE EXTRACT(YEAR FROM c.contract_date) = ${reportYear}
+            LEFT JOIN contracts co ON s.id = co.student_id AND EXTRACT(YEAR FROM co.contract_date) = ${reportYear}
+            LEFT JOIN courses crs ON co.course_id = crs.id
+            LEFT JOIN programs p ON crs.program_id = p.id
             GROUP BY g.name, p.name, age_group
         `;
 
         return data.map((row) => ({
             gender: row.gender,
-            program_type: row.program_type,
+            program_type: row.program_type || 'не указано',
             count: Number(row.count),
             age_group: row.age_group as AgeGroup,
         }));

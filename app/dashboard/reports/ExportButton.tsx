@@ -1,7 +1,7 @@
 'use client';
 import * as XLSX from 'xlsx';
 import { lusitana } from '@/app/ui/fonts';
-
+import { useState } from 'react';
 type AgeGroup = 'under_25' | '25_29' | '30_34' | '35_39' | '40_44' | '45_49' | '50_54' | '55_59' | '60_and_above';
 
 interface ReportData {
@@ -11,24 +11,16 @@ interface ReportData {
     age_group: AgeGroup;
 }
 
-interface CountData {
-    all: number;
-    under_25: number;
-    '25_29': number;
-    '30_34': number;
-    '35_39': number;
-    '40_44': number;
-    '45_49': number;
-    '50_54': number;
-    '55_59': number;
-}
-
 interface ExportButtonProps {
     reportData: ReportData[];
     reportYear: number;
 }
 
-export default function ExportButton({ reportData, reportYear }: ExportButtonProps) {
+export default function ExportButton({ reportData }: ExportButtonProps) {
+    // Состояние для хранения значения года
+    const [reportYear, setReportYear] = useState<number>(new Date().getFullYear());
+
+
     const processReportData = () => {
         const result = {
             total: { all: 0, under_25: 0, '25_29': 0, '30_34': 0, '35_39': 0, '40_44': 0, '45_49': 0, '50_54': 0, '55_59': 0 },
@@ -168,11 +160,28 @@ export default function ExportButton({ reportData, reportYear }: ExportButtonPro
     };
 
     return (
-        <button
-            onClick={handleExport}
-            className="flex h-10 items-center rounded-lg bg-green-600 px-4 text-sm font-medium text-white transition-colors hover:bg-green-500"
-        >
-            Скачать отчет в Excel
-        </button>
+        <div className="flex flex-col items-start space-y-4">
+            {/* Поле ввода для года */}
+            <div className="flex items-center space-x-2">
+                <label htmlFor="reportYear" className={`${lusitana.className} text-lg font-medium`}>
+                    Год отчета:
+                </label>
+                <input
+                    id="reportYear"
+                    type="number"
+                    value={reportYear}
+                    onChange={(e) => setReportYear(Number(e.target.value))}
+                    className="w-24 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:border-green-500"
+                />
+            </div>
+
+            {/* Кнопка экспорта */}
+            <button
+                onClick={handleExport}
+                className="flex h-10 items-center rounded-lg bg-green-600 px-4 text-sm font-medium text-white transition-colors hover:bg-green-500"
+            >
+                Скачать отчет в Excel
+            </button>
+        </div>
     );
 }

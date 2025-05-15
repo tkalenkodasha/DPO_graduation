@@ -160,7 +160,7 @@ export default function StudentsTable({
                     rowSelection="multiple"
                     animateRows={true}
                     pagination={false}
-                    paginationPageSize={50}
+                    paginationPageSize={1000}
                     headerHeight={40}
                     rowHeight={50}
                     overlayLoadingTemplate={'<span class="ag-overlay-loading-center">Загрузка данных...</span>'}
