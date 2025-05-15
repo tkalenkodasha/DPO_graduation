@@ -8,9 +8,9 @@ interface PageProps {
 }
 
 export default async function Page({ searchParams }: PageProps) {
-    // Асинхронно получаем searchParams
+
     const params = await searchParams;
-    // Извлекаем reportYear и преобразуем в число, по умолчанию 2023
+
     const reportYear = parseInt((params.reportYear as string) || '2023', 10);
     const reportData = await fetchReportSection24(reportYear);
 
