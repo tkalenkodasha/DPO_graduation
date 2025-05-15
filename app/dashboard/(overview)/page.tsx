@@ -1,12 +1,14 @@
 import {Card} from '@/app/ui/dashboard/cards';
 import LatestContracts from '@/app/ui/dashboard/latest-contracts';
+import LatestStudents from '@/app/ui/dashboard/latest-students';
 import {lusitana} from '@/app/ui/fonts';
-import {fetchCardData, fetchLatestContracts} from "@/app/lib/data";
+import {fetchCardData, fetchLatestContracts, fetchLatestStudents} from "@/app/lib/data";
 
 
 export default async function Page() {
 
-    const latestInvoices = await fetchLatestContracts();
+    const latestContracts = await fetchLatestContracts();
+    const latestStudents = await fetchLatestStudents();
     const {
         numberOfStudents,
         numberOfCourses,
@@ -23,7 +25,8 @@ export default async function Page() {
                 <Card title="Всего договоров" value={numberOfContracts} type="customers"/>
             </div>
             <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
-                <LatestContracts latestContracts={latestInvoices}/>
+                <LatestContracts latestContracts={latestContracts}/>
+                <LatestStudents latestStudents={latestStudents}/>
             </div>
         </main>
     );

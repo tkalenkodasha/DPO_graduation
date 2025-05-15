@@ -1,6 +1,6 @@
 'use client';
 
-import {DocumentDuplicateIcon, HomeIcon, UserCircleIcon, UserGroupIcon} from '@heroicons/react/24/outline';
+import {DocumentDuplicateIcon, HomeIcon, UserGroupIcon} from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import {usePathname} from "next/navigation";
 import clsx from "clsx";
@@ -12,7 +12,6 @@ const links = [
         href: '/dashboard/contracts',
         icon: DocumentDuplicateIcon,
     },
-    {name: 'Students', href: '/dashboard/students', icon: UserCircleIcon},
     {name: 'Студенты', href: '/dashboard/studentsgrid', icon: UserGroupIcon},
     {name: 'Отчетики', href: '/dashboard/reports', icon: DocumentDuplicateIcon},
 ];

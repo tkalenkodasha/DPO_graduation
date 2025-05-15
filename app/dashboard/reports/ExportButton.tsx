@@ -1,7 +1,6 @@
-'use server';
-import { fetchReportSection24 } from '@/app/lib/data';
+'use client';
+import * as XLSX from 'xlsx';
 import { lusitana } from '@/app/ui/fonts';
-import ExportButton from './ExportButton';
 
 // Тип для возрастных групп
 type AgeGroup = 'under_25' | '25_29' | '30_34' | '35_39' | '40_44' | '45_49' | '50_54' | '55_59' | '60_and_above';
@@ -27,11 +26,12 @@ interface CountData {
     '55_59': number;
 }
 
-export default async function Page() {
-    const reportYear = 2023; // Можно сделать параметром через searchParams
-    const reportData = await fetchReportSection24(reportYear);
+interface ExportButtonProps {
+    reportData: ReportData[];
+    reportYear: number;
+}
 
-    // Обработка данных для отчета
+export default function ExportButton({ reportData, reportYear }: ExportButtonProps) {
     const processReportData = () => {
         const result = {
             total: { all: 0, under_25: 0, '25_29': 0, '30_34': 0, '35_39': 0, '40_44': 0, '45_49': 0, '50_54': 0, '55_59': 0 } as CountData,
@@ -45,9 +45,9 @@ export default async function Page() {
         reportData.forEach(row => {
             const count = row.count;
             const ageGroup = row.age_group;
-            const isWomen = row.gender.toLowerCase().includes('жен');
-            const isQualification = row.program_type.toLowerCase().includes('повышение квалификации');
-            const isRetraining = row.program_type.toLowerCase().includes('профессиональная переподготовка');
+            const isWomen = row.gender.toLowerCase().includes('Женский');
+            const isQualification = row.program_type.toLowerCase().includes('программа повышения квалификации');
+            const isRetraining = row.program_type.toLowerCase().includes('программа профессиональной переподготовки');
 
             // Общее количество
             result.total.all += count;
@@ -162,11 +162,20 @@ export default async function Page() {
         ];
     };
 
+    const handleExport = () => {
+        const exportData = processReportData();
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Раздел 2.4');
+        XLSX.writeFile(workbook, `Отчет_Раздел_2.4_${reportYear}.xlsx`);
+    };
+
     return (
-        <div className="w-full p-6">
-            <h1 className={`${lusitana.className} text-2xl mb-4`}>Отчеты</h1>
-            <h2 className="text-xl mb-4">Раздел 2.4: Распределение слушателей по возрасту, полу и программам</h2>
-            <ExportButton reportData={reportData} reportYear={reportYear} />
-        </div>
+        <button
+            onClick={handleExport}
+            className="flex h-10 items-center rounded-lg bg-green-600 px-4 text-sm font-medium text-white transition-colors hover:bg-green-500"
+        >
+            Скачать отчет в Excel
+        </button>
     );
 }

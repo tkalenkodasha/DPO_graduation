@@ -27,7 +27,7 @@ export default async function ContractsTable({
                   <div>
                     <div className="mb-2 flex items-center">
                       <Image
-                        src={contract.photo_url}
+                        src={'/students/zaglushka.png'}
                         className="mr-2 rounded-full"
                         width={28}
                         height={28}

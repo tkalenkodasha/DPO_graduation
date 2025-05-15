@@ -3,6 +3,7 @@ import {
     ContractForm,
     ContractsTable,
     LatestContractRaw,
+    LatestStudentRaw,
     StudentField,
     StudentForm,
     StudentsTableType
@@ -30,7 +31,28 @@ export async function fetchLatestContracts() {
         return latestContracts;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to fetch the latest invoices.');
+        throw new Error('Failed to fetch the latest contracts.');
+    }
+}
+
+export async function fetchLatestStudents() {
+    try {
+        const data = await sql<LatestStudentRaw[]>`
+            SELECT students.last_name,
+                   students.first_name,
+                   students.middle_name,
+                   students.photo_url,
+                   students.email
+            FROM students
+            ORDER BY students.id DESC LIMIT 5`;
+
+        const latestStudentss = data.map((student) => ({
+            ...student,
+        }));
+        return latestStudentss;
+    } catch (error) {
+        console.error('Database Error:', error);
+        throw new Error('Failed to fetch the latest added students.');
     }
 }
 
@@ -193,28 +215,6 @@ export async function fetchStudents() {
     }
 }
 
-export async function fetchStudentsPages(query: string) {
-    try {
-        const data = await sql`
-            SELECT COUNT(*)
-            FROM students
-            WHERE last_name ILIKE ${`%${query}%`}
-               OR
-                first_name ILIKE ${`%${query}%`}
-               OR
-                email ILIKE ${`%${query}%`}
-               OR
-                phone ILIKE ${`%${query}%`}
-        `;
-
-        const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
-        return totalPages;
-    } catch (error) {
-        console.error('Database Error:', error);
-        throw new Error('Не удалось загрузить общее количество студентов.');
-    }
-}
-
 export async function fetchFundingSources() {
     try {
         const fundingSources = await sql<{ id: string; name: string }[]>`
@@ -327,10 +327,10 @@ export async function fetchFilteredStudents(query: string, currentPage: number):
                    s.email,
                    s.phone,
                    s.date_of_birth,
-                   g.name        as gender_name,
-                   e.name        as education_name,
-                   c.name        as category_name,
-                   sc.name       as subcategory_name,
+                   g.name                              as gender_name,
+                   e.name                              as education_name,
+                   c.name                              as category_name,
+                   sc.name                             as subcategory_name,
                    s.passport_series,
                    s.passport_number,
                    s.issued_by,
@@ -343,7 +343,7 @@ export async function fetchFilteredStudents(query: string, currentPage: number):
                    s.university,
                    s.position,
                    s.photo_url,
-                   COUNT(con.id) as total_contracts
+                   COUNT(con.id)                       as total_contracts
             FROM students s
                      LEFT JOIN genders g ON s.gender_id = g.id
                      LEFT JOIN educations e ON s.education_id = e.id
@@ -423,4 +423,88 @@ export async function fetchStudentById(id: string): Promise<StudentForm | null> 
     }
 }
 
-{/*-------------------------------------------------------------------------------------------*/}
+{/*-------------------------------------------------------------------------------------------*/
+}
+
+// Тип для возрастных групп
+type AgeGroup = 'under_25' | '25_29' | '30_34' | '35_39' | '40_44' | '45_49' | '50_54' | '55_59' | '60_and_above';
+
+// Тип для данных отчета
+interface ReportData {
+    gender: string;
+    program_type: string;
+    count: number;
+    age_group: AgeGroup;
+}
+
+// Тип для строки результата SQL-запроса
+interface ReportRow {
+    gender: string;
+    program_type: string;
+    count: string | number; // COUNT может возвращаться как строка или число
+    age_group: string;
+}
+
+
+export async function fetchReportSection24(reportYear: number): Promise<ReportData[]> {
+    const referenceDate = `${reportYear + 1}-01-01`; // Например, для 2022 года -> 2023-01-01
+
+    try {
+        const data = await sql<ReportRow[]>`
+            SELECT g.name AS gender,
+                   p.name AS program_type,
+                   COUNT(*) AS count,
+                CASE 
+                    WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) < 25 THEN 'under_25'
+                WHEN EXTRACT (YEAR FROM AGE(
+                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 25 AND 29 THEN '25_29'
+                WHEN EXTRACT (YEAR FROM AGE(
+                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 30 AND 34 THEN '30_34'
+                WHEN EXTRACT (YEAR FROM AGE(
+                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 35 AND 39 THEN '35_39'
+                WHEN EXTRACT (YEAR FROM AGE(
+                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 40 AND 44 THEN '40_44'
+                WHEN EXTRACT (YEAR FROM AGE(
+                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 45 AND 49 THEN '45_49'
+                WHEN EXTRACT (YEAR FROM AGE(
+                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 50 AND 54 THEN '50_54'
+                WHEN EXTRACT (YEAR FROM AGE(
+                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 55 AND 59 THEN '55_59'
+                ELSE '60_and_above'
+            END
+            AS age_group
+            FROM contracts c
+            JOIN students s ON c.student_id = s.id
+            JOIN genders g ON s.gender_id = g.id
+            JOIN courses co ON c.course_id = co.id
+            JOIN programs p ON co.program_id = p.id
+            WHERE EXTRACT(YEAR FROM c.contract_date) =
+            ${reportYear}
+            GROUP
+            BY
+            g
+            .
+            name,
+            p
+            .
+            name,
+            age_group
+        `;
+
+        // Логирование для диагностики
+        console.log('SQL Result:', data);
+
+        // Проверяем, является ли data массивом
+        const rows = Array.isArray(data) ? data : [];
+
+        return rows.map((row: ReportRow) => ({
+            gender: row.gender,
+            program_type: row.program_type,
+            count: Number(row.count),
+            age_group: row.age_group as AgeGroup,
+        }));
+    } catch (error) {
+        console.error('Database Error:', error);
+        throw new Error('Failed to fetch report data for Section 2.4.');
+    }
+}

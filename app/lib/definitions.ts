@@ -23,6 +23,19 @@ export type LatestContract = {
 export type LatestContractRaw = Omit<LatestContract, 'amount'> & {
   number: number;
 };
+export type LatestStudent = {
+  id: string;
+  last_name: string;
+  first_name: string;
+  middle_name: string;
+  email: string;
+  photo_url: string;
+  number: string;
+};
+
+export type LatestStudentRaw = Omit<LatestContract, 'amount'> & {
+  number: number;
+};
 
 export type ContractsTable = {
   id: string;
