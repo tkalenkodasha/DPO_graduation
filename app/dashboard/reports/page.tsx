@@ -8,7 +8,7 @@ interface PageProps {
 }
 
 export default async function Page({ searchParams }: PageProps) {
-    const reportYear = parseInt(searchParams?.reportYear || '2023', 10);
+    const reportYear = parseInt(searchParams?.reportYear || '2025', 10);
     const reportData = await fetchReportSection24(reportYear);
 
     return (
