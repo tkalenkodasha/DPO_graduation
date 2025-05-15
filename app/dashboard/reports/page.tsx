@@ -4,11 +4,14 @@ import { lusitana } from '@/app/ui/fonts';
 import ExportButton from './ExportButton';
 
 interface PageProps {
-    searchParams?: { reportYear?: string };
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function Page({ searchParams }: PageProps) {
-    const reportYear = parseInt(searchParams?.reportYear || '2025', 10);
+    // Асинхронно получаем searchParams
+    const params = await searchParams;
+    // Извлекаем reportYear и преобразуем в число, по умолчанию 2023
+    const reportYear = parseInt((params.reportYear as string) || '2023', 10);
     const reportData = await fetchReportSection24(reportYear);
 
     return (
