@@ -161,7 +161,7 @@ export default function EditContractForm({
           {/* Дата завершения */}
           <div className="mb-4">
             <label htmlFor="completionDate" className="mb-2 block text-sm font-medium">
-              Дата завершения (опционально)
+              Дата завершения обучения (предположительно)
             </label>
             <input
                 id="completionDate"
@@ -175,7 +175,7 @@ export default function EditContractForm({
           {/* Дата договора */}
           <div className="mb-4">
             <label htmlFor="contractDate" className="mb-2 block text-sm font-medium">
-              Дата договора
+              Дата составления договора
             </label>
             <input
                 id="contractDate"

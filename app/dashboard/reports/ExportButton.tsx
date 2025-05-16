@@ -53,8 +53,8 @@ export default function ExportButton({ reportData, reportYear: initialReportYear
             const count = row.count;
             const ageGroup = row.age_group;
             const isWomen = row.gender.toLowerCase().includes('жен');
-            const isQualification = row.program_type.toLowerCase().includes('повышение квалификации');
-            const isRetraining = row.program_type.toLowerCase().includes('профессиональная переподготовка');
+            const isQualification = row.program_type.toLowerCase().includes('программа повышения квалификации');
+            const isRetraining = row.program_type.toLowerCase().includes('программа профессиональной переподготовки');
 
             result.total.all += count;
             if (ageGroup !== '60_and_above') result.total[ageGroup] += count;

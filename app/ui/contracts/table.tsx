@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { UpdateContract, DeleteContract } from '@/app/ui/contracts/buttons';
-import InvoiceStatus from '@/app/ui/contracts/status';
+import ContractStatus from '@/app/ui/contracts/status';
 import { formatDateToLocal} from '@/app/lib/utils';
 import { fetchFilteredContracts } from '@/app/lib/data';
 
@@ -37,7 +37,7 @@ export default async function ContractsTable({
                     </div>
                     <p className="text-sm text-gray-500">{contract.email}</p>
                   </div>
-                  <InvoiceStatus status={contract.status} />
+                  <ContractStatus status={contract.status} />
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div>
@@ -105,7 +105,7 @@ export default async function ContractsTable({
                     {formatDateToLocal(contract.contract_date )}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    <InvoiceStatus status={contract.status} />
+                    <ContractStatus status={contract.status} />
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">

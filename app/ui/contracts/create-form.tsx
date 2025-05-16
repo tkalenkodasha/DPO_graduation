@@ -236,7 +236,7 @@ export default function Form({
                 {/* Дата завершения */}
                 <div className="mb-4">
                     <label htmlFor="completionDate" className="mb-2 block text-sm font-medium">
-                        Дата завершения (опционально)
+                        Дата завершения обучения (предположительно)
                     </label>
                     <input
                         id="completionDate"
@@ -244,19 +244,13 @@ export default function Form({
                         type="date"
                         className="peer block w-full rounded-md border border-gray-200 py-2 text-sm outline-2 placeholder:text-gray-500"
                     />
-                    <div id="completion-date-error" aria-live="polite" aria-atomic="true">
-                        {state.errors?.completion_date?.map((error: string) => (
-                            <p className="mt-2 text-sm text-red-500" key={error}>
-                                {error}
-                            </p>
-                        ))}
-                    </div>
+
                 </div>
 
                 {/* Дата договора */}
                 <div className="mb-4">
                     <label htmlFor="contractDate" className="mb-2 block text-sm font-medium">
-                        Дата договора
+                        Дата составления договора
                     </label>
                     <input
                         id="contractDate"
