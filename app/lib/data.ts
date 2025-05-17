@@ -88,7 +88,7 @@ export async function fetchCardData() {
     }
 }
 
-const ITEMS_PER_PAGE = 7;
+const ITEMS_PER_PAGE = 4;
 
 export async function fetchFilteredContracts(
     query: string,
@@ -139,7 +139,56 @@ export async function fetchFilteredContracts(
         throw new Error('Failed to fetch invoices.');
     }
 }
+export async function fetchFilteredContractsGrid(
+    query: string,
 
+) {
+    const ITEMS_PER_PAGE = 1000;
+
+
+    try {
+        const contracts = await sql<ContractsTable[]>`
+            SELECT contracts.id,
+                   contracts.number,
+                   contracts.contract_date,
+                   contracts.enrollment_date,
+                   contracts.completion_date,
+                   contracts.status,
+                   contracts.funding_source_id,
+
+                   students.email,
+                   students.photo_url,
+                   students.last_name,
+                   students.first_name,
+                   students.middle_name
+
+
+            FROM contracts
+                     JOIN students ON contracts.student_id = students.id
+            WHERE students.last_name ILIKE ${`%${query}%`}
+               OR
+                students.email ILIKE ${`%${query}%`}
+               OR
+                students.first_name ILIKE ${`%${query}%`}
+               OR
+                students.middle_name ILIKE ${`%${query}%`}
+               OR
+                contracts.number::text ILIKE ${`%${query}%`}
+               OR
+                contracts.contract_date::text ILIKE ${`%${query}%`}
+               OR
+                contracts.status ILIKE ${`%${query}%`}
+            ORDER BY contracts.contract_date DESC
+                LIMIT ${ITEMS_PER_PAGE}
+            
+        `;
+
+        return contracts;
+    } catch (error) {
+        console.error('Database Error:', error);
+        throw new Error('Failed to fetch invoices.');
+    }
+}
 export async function fetchContractsPages(query: string) {
     try {
         const data = await sql`SELECT COUNT(*)

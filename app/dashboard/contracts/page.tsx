@@ -1,11 +1,12 @@
 import Pagination from '@/app/ui/contracts/pagination';
 import Search from '@/app/ui/search';
-import Table from '@/app/ui/contracts/table';
+import Table from '@/app/ui/contracts/contractsCards';
 import {CreateContract} from '@/app/ui/contracts/buttons';
 import {lusitana} from '@/app/ui/fonts';
 import {Suspense} from 'react';
 import {ContractsTableSkeleton} from '@/app/ui/skeletons';
-import {fetchContractsPages} from "@/app/lib/data";
+import {fetchContractsPages, fetchFilteredContractsGrid} from "@/app/lib/data";
+import ContractsTableComponent from "@/app/ui/contracts/contractsTable"
 
 export default async function Page(props: {
     searchParams?: Promise<{
@@ -17,7 +18,7 @@ export default async function Page(props: {
     const query = searchParams?.query || '';
     const currentPage = Number(searchParams?.page) || 1;
     const totalPages = await fetchContractsPages(query);
-
+    const contracts = await fetchFilteredContractsGrid(query);
     return (
         <div className="w-full">
             <div className="flex w-full items-center justify-between">
@@ -33,6 +34,10 @@ export default async function Page(props: {
             <div className="mt-5 flex w-full justify-center">
                 <Pagination totalPages={totalPages}/>
             </div>
+
+                <ContractsTableComponent contracts={contracts}  query={query} />
+
+
         </div>
     );
 }
