@@ -136,12 +136,12 @@ export async function fetchFilteredContracts(
         return contracts;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to fetch invoices.');
+        throw new Error('Failed to fetch contracts.');
     }
 }
+
 export async function fetchFilteredContractsGrid(
     query: string,
-
 ) {
     const ITEMS_PER_PAGE = 1000;
 
@@ -154,41 +154,47 @@ export async function fetchFilteredContractsGrid(
                    contracts.enrollment_date,
                    contracts.completion_date,
                    contracts.status,
-                   contracts.funding_source_id,
 
                    students.email,
                    students.photo_url,
                    students.last_name,
                    students.first_name,
-                   students.middle_name
+                   students.middle_name,
 
+                   courses.name         as course_name,
+                   funding_sources.name as funding_source_name,
+                   contract_types.name  as contract_type_name,
+                   programs.name        as program_name
 
             FROM contracts
                      JOIN students ON contracts.student_id = students.id
+                     JOIN courses ON contracts.course_id = courses.id
+                     JOIN funding_sources ON contracts.funding_source_id = funding_sources.id
+                     JOIN contract_types ON contracts.contract_type_id = contract_types.id
+                     LEFT JOIN programs ON courses.program_id = programs.id
+
             WHERE students.last_name ILIKE ${`%${query}%`}
-               OR
-                students.email ILIKE ${`%${query}%`}
-               OR
-                students.first_name ILIKE ${`%${query}%`}
-               OR
-                students.middle_name ILIKE ${`%${query}%`}
-               OR
-                contracts.number::text ILIKE ${`%${query}%`}
-               OR
-                contracts.contract_date::text ILIKE ${`%${query}%`}
-               OR
-                contracts.status ILIKE ${`%${query}%`}
+               OR students.email ILIKE ${`%${query}%`}
+               OR students.first_name ILIKE ${`%${query}%`}
+               OR students.middle_name ILIKE ${`%${query}%`}
+               OR contracts.number::text ILIKE ${`%${query}%`}
+               OR contracts.contract_date::text ILIKE ${`%${query}%`}
+               OR contracts.status ILIKE ${`%${query}%`}
+               OR courses.name ILIKE ${`%${query}%`}
+               OR funding_sources.name ILIKE ${`%${query}%`}
+               OR programs.name ILIKE ${`%${query}%`}
+
             ORDER BY contracts.contract_date DESC
                 LIMIT ${ITEMS_PER_PAGE}
-            
         `;
 
         return contracts;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to fetch invoices.');
+        throw new Error('Failed to fetch contracts.');
     }
 }
+
 export async function fetchContractsPages(query: string) {
     try {
         const data = await sql`SELECT COUNT(*)
@@ -500,32 +506,111 @@ export async function fetchReportSection24(reportYear: number): Promise<ReportDa
 
     try {
         const data = await sql<ReportRow[]>`
-            SELECT
-                g.name AS gender,
-                p.name AS program_type,
-                COUNT(DISTINCT s.id) AS count,
+            SELECT g.name AS gender,
+                   p.name AS program_type,
+                   COUNT(DISTINCT s.id) AS count,
                 CASE 
                     WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) < 25 THEN 'under_25'
-                WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 25 AND 29 THEN '25_29'
-                WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 30 AND 34 THEN '30_34'
-                WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 35 AND 39 THEN '35_39'
-                WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 40 AND 44 THEN '40_44'
-                WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 45 AND 49 THEN '45_49'
-                WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 50 AND 54 THEN '50_54'
-                WHEN EXTRACT(YEAR FROM AGE(${referenceDate}::DATE, s.date_of_birth)) BETWEEN 55 AND 59 THEN '55_59'
+                WHEN EXTRACT (YEAR FROM AGE(
+                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 25 AND 29 THEN '25_29'
+                WHEN EXTRACT (YEAR FROM AGE(
+                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 30 AND 34 THEN '30_34'
+                WHEN EXTRACT (YEAR FROM AGE(
+                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 35 AND 39 THEN '35_39'
+                WHEN EXTRACT (YEAR FROM AGE(
+                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 40 AND 44 THEN '40_44'
+                WHEN EXTRACT (YEAR FROM AGE(
+                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 45 AND 49 THEN '45_49'
+                WHEN EXTRACT (YEAR FROM AGE(
+                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 50 AND 54 THEN '50_54'
+                WHEN EXTRACT (YEAR FROM AGE(
+                   ${referenceDate}::DATE, s.date_of_birth)) BETWEEN 55 AND 59 THEN '55_59'
                 ELSE '60_and_above'
-            END AS age_group
+            END
+            AS age_group
             FROM students s
             JOIN (
                 SELECT DISTINCT student_id
                 FROM contracts
-                WHERE EXTRACT(YEAR FROM contract_date) = ${reportYear}
-            ) c ON s.id = c.student_id
-            JOIN genders g ON s.gender_id = g.id
-            LEFT JOIN contracts co ON s.id = co.student_id AND EXTRACT(YEAR FROM co.contract_date) = ${reportYear}
-            LEFT JOIN courses crs ON co.course_id = crs.id
-            LEFT JOIN programs p ON crs.program_id = p.id
-            GROUP BY g.name, p.name, age_group
+                WHERE EXTRACT(YEAR FROM contract_date) =
+            ${reportYear}
+            )
+            c
+            ON
+            s
+            .
+            id
+            =
+            c
+            .
+            student_id
+            JOIN
+            genders
+            g
+            ON
+            s
+            .
+            gender_id
+            =
+            g
+            .
+            id
+            LEFT
+            JOIN
+            contracts
+            co
+            ON
+            s
+            .
+            id
+            =
+            co
+            .
+            student_id
+            AND
+            EXTRACT
+            (
+            YEAR
+            FROM
+            co
+            .
+            contract_date
+            )
+            =
+            ${reportYear}
+            LEFT
+            JOIN
+            courses
+            crs
+            ON
+            co
+            .
+            course_id
+            =
+            crs
+            .
+            id
+            LEFT
+            JOIN
+            programs
+            p
+            ON
+            crs
+            .
+            program_id
+            =
+            p
+            .
+            id
+            GROUP
+            BY
+            g
+            .
+            name,
+            p
+            .
+            name,
+            age_group
         `;
 
         return data.map((row) => ({

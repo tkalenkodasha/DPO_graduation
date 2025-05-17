@@ -44,7 +44,6 @@ export default function ContractsTableComponent({
                 pinned: 'left',
                 sortable: false,
                 filter: false,
-                resizable: true,
                 valueGetter: 'node.rowIndex + 1',
             },
             {
@@ -52,17 +51,63 @@ export default function ContractsTableComponent({
                 headerName: 'Фамилия',
                 sortable: true,
                 filter: true,
-                resizable: true,
                 pinned: 'left',
                 width: 120,
             },
-            {field: 'first_name', headerName: 'Имя', sortable: true, filter: true, resizable: true},
-            {field: 'middle_name', headerName: 'Отчество', sortable: true, filter: true, resizable: true},
-            {field: 'email', headerName: 'Email', sortable: true, filter: true, resizable: true},
-            {field: 'number', headerName: 'Номер договора', sortable: true, filter: true, resizable: true},
-            {field: 'contract_date', headerName: 'Дата договора', sortable: true, filter: true, resizable: true},
-            {field: 'enrollment_date', headerName: 'Дата зачисления', sortable: true, filter: true, resizable: true},
-            {field: 'completion_date', headerName: 'Дата завершения', sortable: true, filter: true, resizable: true},
+            {
+                field: 'first_name',
+                headerName: 'Имя',
+                sortable: true,
+                filter: true
+            },
+            {
+                field: 'middle_name',
+                headerName: 'Отчество',
+                sortable: true,
+                filter: true
+            },
+            {
+                field: 'email',
+                headerName: 'Email',
+                sortable: true,
+                filter: true
+            },
+            {
+                field: 'number',
+                headerName: 'Номер',
+                sortable: true,
+                filter: true
+            },
+            {
+                field: 'contract_date',
+                headerName: 'Дата договора',
+                sortable: true,
+                filter: true
+            },
+            {
+                field: 'course_name',
+                headerName: 'Курс',
+                sortable: true,
+                filter: true
+            },
+            {
+                field: 'program_name',
+                headerName: 'Программа',
+                sortable: true,
+                filter: true
+            },
+            {
+                field: 'funding_source_name',
+                headerName: 'Финансирование',
+                sortable: true,
+                filter: true
+            },
+            {
+                field: 'contract_type_name',
+                headerName: 'Тип договора',
+                sortable: true,
+                filter: true
+            },
             {
                 field: 'status',
                 headerName: 'Статус',
@@ -71,7 +116,6 @@ export default function ContractsTableComponent({
                 ),
                 sortable: true,
                 filter: true,
-                resizable: true,
             },
             {
                 headerName: 'Действия',
@@ -83,7 +127,6 @@ export default function ContractsTableComponent({
                 ),
                 pinned: 'right',
                 width: 120,
-                resizable: false,
             },
         ],
         []
@@ -98,8 +141,10 @@ export default function ContractsTableComponent({
             'Email': contract.email || '',
             'Номер договора': contract.number,
             'Дата договора': contract.contract_date,
-            'Дата зачисления': contract.enrollment_date,
-            'Дата завершения': contract.completion_date || '',
+            'Курс': contract.course_name,
+            'Программа': contract.program_name || '',
+            'Финансирование': contract.funding_source_name,
+            'Тип договора': contract.contract_type_name,
             'Статус': contract.status,
         }));
 

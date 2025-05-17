@@ -52,6 +52,10 @@ export type ContractsTable = {
   completion_date: string;
   contract_date: string;
   status: 'Активен' | 'Завершен';
+  course_name: string;
+  funding_source_name: string;
+  contract_type_name: string;
+  program_name: string | null;
 };
 
 
