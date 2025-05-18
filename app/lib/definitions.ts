@@ -5,11 +5,6 @@ export type User = {
   password: string;
 };
 
-export type Revenue = {
-  month: string;
-  revenue: number;
-};
-
 export type LatestContract = {
   id: string;
   last_name: string;
@@ -134,3 +129,4 @@ export type StudentsTableType = {
   photo_url?: string;
 
 };
+

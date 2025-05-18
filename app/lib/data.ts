@@ -116,18 +116,12 @@ export async function fetchFilteredContracts(
             FROM contracts
                      JOIN students ON contracts.student_id = students.id
             WHERE students.last_name ILIKE ${`%${query}%`}
-               OR
-                students.email ILIKE ${`%${query}%`}
-               OR
-                students.first_name ILIKE ${`%${query}%`}
-               OR
-                students.middle_name ILIKE ${`%${query}%`}
-               OR
-                contracts.number::text ILIKE ${`%${query}%`}
-               OR
-                contracts.contract_date::text ILIKE ${`%${query}%`}
-               OR
-                contracts.status ILIKE ${`%${query}%`}
+               OR students.email ILIKE ${`%${query}%`}
+               OR students.first_name ILIKE ${`%${query}%`}
+               OR students.middle_name ILIKE ${`%${query}%`}
+               OR contracts.number::text ILIKE ${`%${query}%`}
+               OR contracts.contract_date::text ILIKE ${`%${query}%`}
+               OR contracts.status ILIKE ${`%${query}%`}
             ORDER BY contracts.contract_date DESC
                 LIMIT ${ITEMS_PER_PAGE}
             OFFSET ${offset}
@@ -201,18 +195,12 @@ export async function fetchContractsPages(query: string) {
                                FROM contracts
                                         JOIN students ON contracts.student_id = students.id
                                WHERE students.last_name ILIKE ${`%${query}%`}
-                                  OR
-                                   students.email ILIKE ${`%${query}%`}
-                                  OR
-                                   students.first_name ILIKE ${`%${query}%`}
-                                  OR
-                                   students.middle_name ILIKE ${`%${query}%`}
-                                  OR
-                                   contracts.number::text ILIKE ${`%${query}%`}
-                                  OR
-                                   contracts.contract_date::text ILIKE ${`%${query}%`}
-                                  OR
-                                   contracts.status ILIKE ${`%${query}%`}
+                                  OR students.email ILIKE ${`%${query}%`}
+                                  OR students.first_name ILIKE ${`%${query}%`}
+                                  OR students.middle_name ILIKE ${`%${query}%`}
+                                  OR contracts.number::text ILIKE ${`%${query}%`}
+                                  OR contracts.contract_date::text ILIKE ${`%${query}%`}
+                                  OR contracts.status ILIKE ${`%${query}%`}
         `;
 
         const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
@@ -406,24 +394,15 @@ export async function fetchFilteredStudents(query: string, currentPage: number):
                      LEFT JOIN subcategories sc ON s.subcategory_id = sc.id
                      LEFT JOIN contracts con ON s.id = con.student_id
             WHERE s.last_name ILIKE ${`%${query}%`}
-               OR
-                s.first_name ILIKE ${`%${query}%`}
-               OR
-                s.email ILIKE ${`%${query}%`}
-               OR
-                s.phone ILIKE ${`%${query}%`}
-               OR
-                s.date_of_birth::text ILIKE ${`%${query}%`}
-               OR
-                g.name ILIKE ${`%${query}%`}
-               OR
-                e.name ILIKE ${`%${query}%`}
-               OR
-                c.name ILIKE ${`%${query}%`}
-               OR
-                sc.name ILIKE ${`%${query}%`}
-               OR
-                s.position ILIKE ${`%${query}%`}
+               OR s.first_name ILIKE ${`%${query}%`}
+               OR s.email ILIKE ${`%${query}%`}
+               OR s.phone ILIKE ${`%${query}%`}
+               OR s.date_of_birth::text ILIKE ${`%${query}%`}
+               OR g.name ILIKE ${`%${query}%`}
+               OR e.name ILIKE ${`%${query}%`}
+               OR c.name ILIKE ${`%${query}%`}
+               OR sc.name ILIKE ${`%${query}%`}
+               OR ${`%${query}%`}
             GROUP BY
                 s.id, s.last_name, s.first_name, s.middle_name, s.email, s.phone, s.date_of_birth,
                 g.name, e.name, c.name, sc.name, s.passport_series, s.passport_number, s.issued_by,
@@ -478,8 +457,7 @@ export async function fetchStudentById(id: string): Promise<StudentForm | null> 
     }
 }
 
-{/*-------------------------------------------------------------------------------------------*/
-}
+{/*-------------------------------------------------------------------------------------------*/}
 
 // Тип для возрастных групп
 type AgeGroup = 'under_25' | '25_29' | '30_34' | '35_39' | '40_44' | '45_49' | '50_54' | '55_59' | '60_and_above';
@@ -532,85 +510,13 @@ export async function fetchReportSection24(reportYear: number): Promise<ReportDa
             JOIN (
                 SELECT DISTINCT student_id
                 FROM contracts
-                WHERE EXTRACT(YEAR FROM contract_date) =
-            ${reportYear}
-            )
-            c
-            ON
-            s
-            .
-            id
-            =
-            c
-            .
-            student_id
-            JOIN
-            genders
-            g
-            ON
-            s
-            .
-            gender_id
-            =
-            g
-            .
-            id
-            LEFT
-            JOIN
-            contracts
-            co
-            ON
-            s
-            .
-            id
-            =
-            co
-            .
-            student_id
-            AND
-            EXTRACT
-            (
-            YEAR
-            FROM
-            co
-            .
-            contract_date
-            )
-            =
-            ${reportYear}
-            LEFT
-            JOIN
-            courses
-            crs
-            ON
-            co
-            .
-            course_id
-            =
-            crs
-            .
-            id
-            LEFT
-            JOIN
-            programs
-            p
-            ON
-            crs
-            .
-            program_id
-            =
-            p
-            .
-            id
-            GROUP
-            BY
-            g
-            .
-            name,
-            p
-            .
-            name,
-            age_group
+                WHERE EXTRACT(YEAR FROM contract_date) = ${reportYear}) c ON s.id = c.student_id 
+                JOIN genders g ON s.gender_id = g.id 
+                LEFT JOIN contracts co ON s.id = co.student_id 
+                AND EXTRACT ( YEAR FROM co.contract_date ) = ${reportYear}
+                LEFT JOIN courses crs ON co.course_id = crs.id 
+                LEFT JOIN programs p ON crs.program_id = p.id 
+                GROUP BY g.name, p.name, age_group
         `;
 
         return data.map((row) => ({
