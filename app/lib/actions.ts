@@ -408,3 +408,110 @@ export async function deleteStudent(id: string) {
         throw new Error('Ошибка базы данных. Не удалось удалить студента.');
     }
 }
+
+
+// Схема валидации формы курса
+const CourseFormSchema = z.object({
+    id: z.string(),
+    name: z.string().min(1, { message: 'Название курса обязательно' }),
+    academic_hours: z.string().min(1, { message: 'Количество часов обязательно' }),
+    description: z.string().optional(),
+    program_id: z.string().min(1, { message: 'Тип программы обязателен' }),
+});
+
+export type CourseState = {
+    errors?: {
+        name?: string[];
+        academic_hours?: string[];
+        description?: string[];
+        program_id?: string[];
+    };
+    message?: string | null;
+};
+
+const CreateCourse = CourseFormSchema.omit({ id: true });
+const UpdateCourse = CourseFormSchema.omit({ id: true });
+
+export async function createCourse(prevState: CourseState, formData: FormData): Promise<CourseState> {
+    const validatedFields = CreateCourse.safeParse({
+        name: formData.get('name'),
+        academic_hours: formData.get('academic_hours'),
+        description: formData.get('description'),
+        program_id: formData.get('program_id'),
+    });
+
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: 'Отсутствуют обязательные поля. Не удалось создать курс.',
+        };
+    }
+
+    const { name, academic_hours, description, program_id } = validatedFields.data;
+
+    try {
+        await sql`
+            INSERT INTO courses (name, academic_hours, description, program_id)
+            VALUES (${name}, ${academic_hours}, ${description || null}, ${program_id})
+        `;
+    } catch (error) {
+        console.error('Ошибка базы данных:', error);
+        return {
+            message: 'Ошибка базы данных: Не удалось создать курс.',
+            errors: {},
+        };
+    }
+
+    revalidatePath('/dashboard/courses');
+    redirect('/dashboard/courses');
+    return { errors: {}, message: null };
+}
+
+export async function updateCourse(id: string, prevState: CourseState, formData: FormData): Promise<CourseState> {
+    const validatedFields = UpdateCourse.safeParse({
+        name: formData.get('name'),
+        academic_hours: formData.get('academic_hours'),
+        description: formData.get('description'),
+        program_id: formData.get('program_id'),
+    });
+
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: 'Отсутствуют обязательные поля. Не удалось обновить курс.',
+        };
+    }
+
+    const { name, academic_hours, description, program_id } = validatedFields.data;
+
+    try {
+        await sql`
+            UPDATE courses
+            SET name = ${name},
+                academic_hours = ${academic_hours},
+                description = ${description || null},
+                program_id = ${program_id}
+            WHERE id = ${id}
+        `;
+    } catch (error) {
+        console.error('Ошибка базы данных:', error);
+        return {
+            message: 'Ошибка базы данных: Не удалось обновить курс.',
+            errors: {},
+        };
+    }
+
+    revalidatePath('/dashboard/courses');
+    redirect('/dashboard/courses');
+    return { errors: {}, message: null };
+}
+
+export async function deleteCourse(id: string) {
+    try {
+        await sql`DELETE FROM courses WHERE id = ${id}`;
+        revalidatePath('/dashboard/courses');
+    } catch (error) {
+        console.error('Database Error:', error);
+        throw new Error('Ошибка базы данных. Не удалось удалить курс.');
+    }
+}

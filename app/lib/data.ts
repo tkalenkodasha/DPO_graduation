@@ -6,8 +6,11 @@ import {
     LatestStudentRaw,
     StudentField,
     StudentForm,
-    StudentsTableType
+    StudentsTableType,
+    CoursesTableType,
+    CourseForm
 } from './definitions';
+
 
 const sql = postgres(process.env.POSTGRES_URL!, {ssl: 'require'});
 
@@ -148,6 +151,7 @@ export async function fetchFilteredContractsGrid(
                    contracts.enrollment_date,
                    contracts.completion_date,
                    contracts.status,
+                   contracts.other,
 
                    students.email,
                    students.photo_url,
@@ -177,6 +181,7 @@ export async function fetchFilteredContractsGrid(
                OR courses.name ILIKE ${`%${query}%`}
                OR funding_sources.name ILIKE ${`%${query}%`}
                OR programs.name ILIKE ${`%${query}%`}
+               OR contracts.other ILIKE ${`%${query}%`}
 
             ORDER BY contracts.contract_date DESC
                 LIMIT ${ITEMS_PER_PAGE}
@@ -222,7 +227,8 @@ export async function fetchContractById(id: string) {
                    TO_CHAR(contracts.enrollment_date, 'YYYY-MM-DD') AS enrollment_date,
                    TO_CHAR(contracts.completion_date, 'YYYY-MM-DD') AS completion_date,
                    TO_CHAR(contracts.contract_date, 'YYYY-MM-DD')   AS contract_date,
-                   contracts.status
+                   contracts.status,
+                   contracts.other
 
             FROM contracts
             WHERE contracts.id = ${id};
@@ -313,7 +319,19 @@ export async function fetchGenders() {
         throw new Error('Failed to fetch genders.');
     }
 }
-
+export async function fetchPrograms() {
+    try {
+        const programs = await sql<{ id: string; name: string }[]>`
+            SELECT id, name
+            FROM programs
+            ORDER BY name ASC
+        `;
+        return programs;
+    } catch (error) {
+        console.error('Database Error:', error);
+        throw new Error('Failed to fetch genders.');
+    }
+}
 export async function fetchEducations() {
     try {
         const educations = await sql<{ id: string; name: string }[]>`
@@ -419,7 +437,6 @@ export async function fetchFilteredStudents(query: string, currentPage: number):
         throw new Error('Не удалось загрузить студентов.');
     }
 }
-
 export async function fetchStudentById(id: string): Promise<StudentForm | null> {
     try {
         const result = await sql<StudentForm[]>`
@@ -456,7 +473,56 @@ export async function fetchStudentById(id: string): Promise<StudentForm | null> 
         throw new Error('Не удалось загрузить студента.');
     }
 }
+export async function fetchFilteredCourses(query: string, currentPage: number): Promise<CoursesTableType[]> {
+    const ITEMS_PER_PAGE = 1000;
+    const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
+    try {
+        const courses = await sql<CoursesTableType[]>`
+            SELECT
+                course.id,
+                course.name,
+                course.academic_hours,
+                course.description,
+                p.name as program_name
+            FROM courses course
+                     LEFT JOIN programs p ON course.program_id = p.id
+            WHERE
+                course.name ILIKE ${`%${query}%`}
+               OR course.academic_hours::text ILIKE ${`%${query}%`}
+               OR course.description ILIKE ${`%${query}%`}
+               OR p.name ILIKE ${`%${query}%`}
+            ORDER BY course.name ASC
+                LIMIT ${ITEMS_PER_PAGE}
+            OFFSET ${offset}
+        `;
+
+        return courses;
+    } catch (error) {
+        console.error('Ошибка базы данных:', error);
+        throw new Error('Не удалось загрузить курсы.');
+    }
+}
+
+export async function fetchCourseById(id: string): Promise<CourseForm | null> {
+    try {
+        const result = await sql<CourseForm[]>`
+            SELECT
+                id,
+                name,
+                academic_hours,
+                description,
+                program_id
+            FROM courses
+            WHERE id = ${id}
+        `;
+
+        return result.length > 0 ? result[0] : null;
+    } catch (error) {
+        console.error('Database Error:', error);
+        throw new Error('Не удалось загрузить курс.');
+    }
+}
 {/*-------------------------------------------------------------------------------------------*/}
 
 // Тип для возрастных групп

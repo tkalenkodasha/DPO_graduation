@@ -13,6 +13,7 @@ const links = [
         icon: DocumentDuplicateIcon,
     },
     {name: 'Студенты', href: '/dashboard/studentsgrid', icon: UserGroupIcon},
+    {name: 'Курсы и программы', href: '/dashboard/courses', icon: DocumentDuplicateIcon},
     {name: 'Отчетики', href: '/dashboard/reports', icon: DocumentDuplicateIcon},
 ];
 

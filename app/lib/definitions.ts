@@ -51,6 +51,7 @@ export type ContractsTable = {
   funding_source_name: string;
   contract_type_name: string;
   program_name: string | null;
+  other: string;
 };
 
 
@@ -128,5 +129,21 @@ export type StudentsTableType = {
   position?: string;
   photo_url?: string;
 
+};
+
+export type CoursesTableType = {
+  id: string;
+  name: string;
+  academic_hours?: string;
+  description?: string;
+  program_name: string;
+
+};
+export type CourseForm = {
+  id: string;
+  name: string;
+  academic_hours?: string;
+  description?: string;
+  program_id: string;
 };
 

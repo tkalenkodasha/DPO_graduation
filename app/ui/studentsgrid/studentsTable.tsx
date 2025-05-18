@@ -78,7 +78,7 @@ export default function StudentsTable({
             {
                 headerName: 'Действия',
                 cellRenderer: (params: ICellRendererParams<StudentsTableType>) => (
-                    <div className="flex justify-end gap-3">
+                    <div className="flex justify-end gap-2">
                         <UpdateStudent id={params.data!.id}/>
                         <DeleteStudent id={params.data!.id}/>
                     </div>

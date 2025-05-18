@@ -118,9 +118,15 @@ export default function ContractsTableComponent({
                 filter: true,
             },
             {
+                field: 'other',
+                headerName: 'Прочее',
+                sortable: true,
+                filter: true
+            },
+            {
                 headerName: 'Действия',
                 cellRenderer: (params: ICellRendererParams<ContractsTable>) => (
-                    <div className="flex justify-end gap-3">
+                    <div className="flex justify-end gap-2">
                         <UpdateContract id={params.data!.id}/>
                         <DeleteContract id={params.data!.id}/>
                     </div>
