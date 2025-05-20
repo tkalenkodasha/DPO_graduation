@@ -124,6 +124,12 @@ export default function ContractsTableComponent({
                 filter: true
             },
             {
+                field: 'gender',
+                headerName: 'Гендер',
+                sortable: true,
+                filter: true
+            },
+            {
                 headerName: 'Действия',
                 cellRenderer: (params: ICellRendererParams<ContractsTable>) => (
                     <div className="flex justify-end gap-2">

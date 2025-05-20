@@ -51,6 +51,7 @@ export type ContractsTable = {
   funding_source_name: string;
   contract_type_name: string;
   program_name: string | null;
+  gender: string;
   other: string;
 };
 

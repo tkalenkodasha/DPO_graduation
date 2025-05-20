@@ -21,7 +21,7 @@ export default function ContractStatus({ status }: { status: string }) {
       {status === 'Завершен' ? (
         <>
             Завершен
-          <CheckIcon className="ml-1 w-4 text-white" />
+          <CheckIcon className="ml-1 w-4 text-gray-500" />
         </>
       ) : null}
     </span>

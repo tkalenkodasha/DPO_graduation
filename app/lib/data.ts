@@ -158,17 +158,21 @@ export async function fetchFilteredContractsGrid(
                    students.last_name,
                    students.first_name,
                    students.middle_name,
+                   
+                   
 
                    courses.name         as course_name,
                    funding_sources.name as funding_source_name,
                    contract_types.name  as contract_type_name,
-                   programs.name        as program_name
+                   programs.name        as program_name,
+                   genders.name as gender
 
             FROM contracts
                      JOIN students ON contracts.student_id = students.id
                      JOIN courses ON contracts.course_id = courses.id
                      JOIN funding_sources ON contracts.funding_source_id = funding_sources.id
                      JOIN contract_types ON contracts.contract_type_id = contract_types.id
+                    JOIN genders ON students.gender_id = genders.id
                      LEFT JOIN programs ON courses.program_id = programs.id
 
             WHERE students.last_name ILIKE ${`%${query}%`}
