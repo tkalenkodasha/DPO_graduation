@@ -15,7 +15,7 @@ const links = [
     },
 
     {name: 'Курсы и программы', href: '/dashboard/courses', icon: InboxIcon},
-    {name: 'Отчетики', href: '/dashboard/reports', icon: DocumentDuplicateIcon},
+    {name: 'Отчеты', href: '/dashboard/reports', icon: DocumentDuplicateIcon},
 ];
 
 export default function NavLinks() {
