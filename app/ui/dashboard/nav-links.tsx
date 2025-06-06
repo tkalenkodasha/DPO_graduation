@@ -1,19 +1,20 @@
 'use client';
 
-import {DocumentDuplicateIcon, HomeIcon, UserGroupIcon} from '@heroicons/react/24/outline';
+import {DocumentDuplicateIcon, HomeIcon, UserGroupIcon, InboxIcon} from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import {usePathname} from "next/navigation";
 import clsx from "clsx";
 
 const links = [
     {name: 'Главная', href: '/dashboard', icon: HomeIcon},
+    {name: 'Слушатели', href: '/dashboard/studentsgrid', icon: UserGroupIcon},
     {
         name: 'Договоры',
         href: '/dashboard/contracts',
         icon: DocumentDuplicateIcon,
     },
-    {name: 'Студенты', href: '/dashboard/studentsgrid', icon: UserGroupIcon},
-    {name: 'Курсы и программы', href: '/dashboard/courses', icon: DocumentDuplicateIcon},
+
+    {name: 'Курсы и программы', href: '/dashboard/courses', icon: InboxIcon},
     {name: 'Отчетики', href: '/dashboard/reports', icon: DocumentDuplicateIcon},
 ];
 

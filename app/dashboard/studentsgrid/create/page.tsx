@@ -17,9 +17,9 @@ export default async function Page() {
         <main>
             <Breadcrumbs
                 breadcrumbs={[
-                    {label: 'Студенты', href: '/dashboard/studentsgrid'},
+                    {label: 'Слушатели', href: '/dashboard/studentsgrid'},
                     {
-                        label: 'Создать студента',
+                        label: 'Создать слушателя',
                         href: '/dashboard/studentsgrid/create',
                         active: true,
                     },
