@@ -10,7 +10,7 @@ export function CreateStudent() {
             href="/dashboard/studentsgrid/create"
             className="flex h-10 items-center rounded-lg bg-blue-600 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         >
-            <span className="hidden md:block">Создать студента</span>{' '}
+            <span className="hidden md:block">Создать слушателя</span>{' '}
             <PlusIcon className="h-5 md:ml-2"/>
         </Link>
     );
@@ -18,7 +18,7 @@ export function CreateStudent() {
 
 export function UpdateStudent({id}: { id: string }) {
     const handleClick = (e: React.MouseEvent) => {
-        if (!window.confirm('Вы уверены, что хотите отредактировать данные этого студента?')) {
+        if (!window.confirm('Вы уверены, что хотите отредактировать данные этого слушателя?')) {
             e.preventDefault();
         }
     };
@@ -38,7 +38,7 @@ export function DeleteStudent({id}: { id: string }) {
     const deleteStudentWithId = deleteStudent.bind(null, id);
 
     const handleSubmit = (e: React.FormEvent) => {
-        if (!window.confirm('Вы уверены, что хотите удалить этого студента? Это действие нельзя отменить.')) {
+        if (!window.confirm('Вы уверены, что хотите удалить этого слушателя? Это действие нельзя отменить.')) {
             e.preventDefault();
         }
     };
