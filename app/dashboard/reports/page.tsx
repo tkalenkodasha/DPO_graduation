@@ -19,6 +19,10 @@ export default async function Page({ searchParams }: PageProps) {
             <h1 className={`${lusitana.className} text-2xl mb-4`}>Отчеты</h1>
             <h2 className="text-xl mb-4">Раздел 2.4: Распределение слушателей по возрасту, полу и программам</h2>
             <ExportButton reportData={reportData} reportYear={reportYear} />
+            <h2 className="text-xl mb-4">Раздел 2.5: Распределение слушателей по видам деятельности</h2>
+            <ExportButton reportData={reportData} reportYear={reportYear} />
+            <h2 className="text-xl mb-4">Раздел 2.4: Сводная ведомость</h2>
+            <ExportButton reportData={reportData} reportYear={reportYear} />
         </div>
     );
 }
